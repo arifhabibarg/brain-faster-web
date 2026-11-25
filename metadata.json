@@ -1,0 +1,7 @@
+{
+  "name": "Amaze Go - 3D Ball Paint Maze",
+  "description": "Amaze GO! Arrow escape logic puzzle game with all 40 levels unlocked, satisfying slide mechanics, and ASMR sound design.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

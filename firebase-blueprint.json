@@ -1,0 +1,239 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private authenticated player account profile and progression summary (includes isolated email PII).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 150
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "photoUrl": {
+          "type": "string",
+          "maxLength": 80000
+        },
+        "highestUnlockedLevel": {
+          "type": "integer"
+        },
+        "completedCount": {
+          "type": "integer"
+        },
+        "totalStars": {
+          "type": "integer"
+        },
+        "totalTimeSeconds": {
+          "type": "integer"
+        },
+        "unlimitedModeAllowed": {
+          "type": "boolean",
+          "description": "Admin-granted permission flag allowing access to Unlimited (Zen) Hearts mode."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "displayName",
+        "photoUrl",
+        "highestUnlockedLevel",
+        "completedCount",
+        "totalStars",
+        "totalTimeSeconds",
+        "unlimitedModeAllowed",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "UserLevelHistory": {
+      "title": "UserLevelHistory",
+      "description": "Personal best record for a specific level completed by the player.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "levelId": {
+          "type": "integer"
+        },
+        "bestTimeSeconds": {
+          "type": "integer"
+        },
+        "stars": {
+          "type": "integer"
+        },
+        "bestMoves": {
+          "type": "integer"
+        },
+        "minBumps": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "levelId",
+        "bestTimeSeconds",
+        "stars",
+        "bestMoves",
+        "minBumps",
+        "updatedAt"
+      ]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Public player ranking summary without PII for the global chart.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "photoUrl": {
+          "type": "string",
+          "maxLength": 80000
+        },
+        "completedCount": {
+          "type": "integer"
+        },
+        "highestUnlockedLevel": {
+          "type": "integer"
+        },
+        "totalStars": {
+          "type": "integer"
+        },
+        "totalTimeSeconds": {
+          "type": "integer"
+        },
+        "tierIndex": {
+          "type": "integer"
+        },
+        "isPublic": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "photoUrl",
+        "completedCount",
+        "highestUnlockedLevel",
+        "totalStars",
+        "totalTimeSeconds",
+        "tierIndex",
+        "isPublic",
+        "updatedAt"
+      ]
+    },
+    "LevelRecordEntry": {
+      "title": "LevelRecordEntry",
+      "description": "Public player clear-time record for a given level (no PII).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "levelId": {
+          "type": "integer"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "photoUrl": {
+          "type": "string",
+          "maxLength": 80000
+        },
+        "bestTimeSeconds": {
+          "type": "integer"
+        },
+        "stars": {
+          "type": "integer"
+        },
+        "bestMoves": {
+          "type": "integer"
+        },
+        "minBumps": {
+          "type": "integer"
+        },
+        "isPublic": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "levelId",
+        "displayName",
+        "photoUrl",
+        "bestTimeSeconds",
+        "stars",
+        "bestMoves",
+        "minBumps",
+        "isPublic",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private player profile and email PII, accessible only by owner and admins."
+    },
+    "/users/{uid}/levelHistory/{levelId}": {
+      "schema": { "$ref": "#/entities/UserLevelHistory" },
+      "description": "Per-level clear times and stars owned by the player."
+    },
+    "/leaderboard/{uid}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Public player leaderboard summary without PII."
+    },
+    "/levels/{levelId}/records/{uid}": {
+      "schema": { "$ref": "#/entities/LevelRecordEntry" },
+      "description": "Public per-level fastest clear time records without PII."
+    }
+  }
+}

@@ -1,0 +1,246 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidLevelId(levelId) {
+      return levelId is string && levelId.size() >= 1 && levelId.size() <= 3 && levelId.matches('^[1-9][0-9]{0,2}$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isVerifiedOwner(uid) {
+      return isVerified() && request.auth.uid == uid;
+    }
+
+    function isAdminByEmail() {
+      return isVerified() && (
+        request.auth.token.email == 'arifhabib.arg@gmail.com'
+        || request.auth.token.email == 'arif.habib.arg@gmail.com'
+      );
+    }
+
+    function isAdmin() {
+      return isAdminByEmail()
+        || (isVerified() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isValidUserProfile(data, uid) {
+      return data.keys().hasAll([
+        'uid', 'email', 'displayName', 'photoUrl',
+        'highestUnlockedLevel', 'completedCount', 'totalStars',
+        'totalTimeSeconds', 'createdAt', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'uid', 'email', 'displayName', 'photoUrl',
+        'highestUnlockedLevel', 'completedCount', 'totalStars',
+        'totalTimeSeconds', 'unlimitedModeAllowed', 'createdAt', 'updatedAt'
+      ])
+      && data.uid is string && data.uid == uid
+      && data.email is string && data.email.size() <= 150
+      && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 50
+      && data.photoUrl is string && data.photoUrl.size() <= 80000
+      && data.highestUnlockedLevel is int && data.highestUnlockedLevel >= 1 && data.highestUnlockedLevel <= 500
+      && data.completedCount is int && data.completedCount >= 0 && data.completedCount <= 500
+      && data.totalStars is int && data.totalStars >= 0 && data.totalStars <= 1500
+      && data.totalTimeSeconds is int && data.totalTimeSeconds >= 0 && data.totalTimeSeconds <= 9000000
+      && (!('unlimitedModeAllowed' in data.keys()) || data.unlimitedModeAllowed is bool)
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidLevelHistory(data, uid, levelIdStr) {
+      return data.keys().hasAll([
+        'uid', 'levelId', 'bestTimeSeconds', 'stars', 'bestMoves', 'minBumps', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'uid', 'levelId', 'bestTimeSeconds', 'stars', 'bestMoves', 'minBumps', 'updatedAt'
+      ])
+      && data.uid is string && data.uid == uid && data.uid == request.auth.uid
+      && data.levelId is int && data.levelId >= 1 && data.levelId <= 500
+      && string(data.levelId) == levelIdStr
+      && data.bestTimeSeconds is int && data.bestTimeSeconds >= 0 && data.bestTimeSeconds <= 86400
+      && data.stars is int && data.stars >= 1 && data.stars <= 3
+      && data.bestMoves is int && data.bestMoves >= 1 && data.bestMoves <= 10000
+      && data.minBumps is int && data.minBumps >= 0 && data.minBumps <= 1000
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidLeaderboardEntry(data, uid) {
+      return data.keys().hasAll([
+        'uid', 'displayName', 'photoUrl', 'completedCount',
+        'highestUnlockedLevel', 'totalStars', 'totalTimeSeconds',
+        'tierIndex', 'isPublic', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'uid', 'displayName', 'photoUrl', 'completedCount',
+        'highestUnlockedLevel', 'totalStars', 'totalTimeSeconds',
+        'tierIndex', 'isPublic', 'updatedAt'
+      ])
+      && data.uid is string && data.uid == uid && data.uid == request.auth.uid
+      && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 50
+      && data.photoUrl is string && data.photoUrl.size() <= 80000
+      && data.completedCount is int && data.completedCount >= 0 && data.completedCount <= 500
+      && data.highestUnlockedLevel is int && data.highestUnlockedLevel >= 1 && data.highestUnlockedLevel <= 500
+      && data.totalStars is int && data.totalStars >= 0 && data.totalStars <= 1500
+      && data.totalTimeSeconds is int && data.totalTimeSeconds >= 0 && data.totalTimeSeconds <= 9000000
+      && data.tierIndex is int && data.tierIndex >= 0 && data.tierIndex <= 6
+      && data.isPublic is bool && data.isPublic == true
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidLevelRecord(data, uid, levelIdStr) {
+      return data.keys().hasAll([
+        'uid', 'levelId', 'displayName', 'photoUrl',
+        'bestTimeSeconds', 'stars', 'bestMoves', 'minBumps',
+        'isPublic', 'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'uid', 'levelId', 'displayName', 'photoUrl',
+        'bestTimeSeconds', 'stars', 'bestMoves', 'minBumps',
+        'isPublic', 'updatedAt'
+      ])
+      && data.uid is string && data.uid == uid && data.uid == request.auth.uid
+      && data.levelId is int && data.levelId >= 1 && data.levelId <= 500
+      && string(data.levelId) == levelIdStr
+      && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 50
+      && data.photoUrl is string && data.photoUrl.size() <= 80000
+      && data.bestTimeSeconds is int && data.bestTimeSeconds >= 0 && data.bestTimeSeconds <= 86400
+      && data.stars is int && data.stars >= 1 && data.stars <= 3
+      && data.bestMoves is int && data.bestMoves >= 1 && data.bestMoves <= 10000
+      && data.minBumps is int && data.minBumps >= 0 && data.minBumps <= 1000
+      && data.isPublic is bool && data.isPublic == true
+      && data.updatedAt is timestamp;
+    }
+
+    // Private User Profile (contains email PII -> strictly Owner or Admin)
+    match /users/{uid} {
+      allow get: if isValidId(uid) && (isOwner(uid) || isAdmin());
+      allow list: if isAdminByEmail();
+      allow create: if isValidId(uid)
+        && isVerifiedOwner(uid)
+        && isValidUserProfile(incoming(), uid)
+        && ('unlimitedModeAllowed' in incoming().keys())
+        && (incoming().unlimitedModeAllowed == false || isAdmin())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(uid)
+        && isSignedIn()
+        && isValidUserProfile(incoming(), uid)
+        && incoming().uid == existing().uid
+        && incoming().email == existing().email
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action 1: Admin grants or revokes Unlimited (Zen) Mode permission
+          (
+            isAdmin()
+            && ('unlimitedModeAllowed' in incoming().keys())
+            && incoming().unlimitedModeAllowed is bool
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'unlimitedModeAllowed', 'updatedAt'
+            ])
+          )
+          ||
+          // Action 2: Verified Owner syncs profile & progress (cannot alter unlimitedModeAllowed)
+          (
+            isVerifiedOwner(uid)
+            && (!('unlimitedModeAllowed' in existing().keys())
+              ? (!('unlimitedModeAllowed' in incoming().keys()) || incoming().unlimitedModeAllowed == false)
+              : incoming().unlimitedModeAllowed == existing().unlimitedModeAllowed)
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'displayName', 'photoUrl', 'highestUnlockedLevel',
+              'completedCount', 'totalStars', 'totalTimeSeconds', 'updatedAt'
+            ])
+          )
+        );
+      allow delete: if false;
+
+      // Personal per-level completion history (time, stars, moves, bumps)
+      match /levelHistory/{levelId} {
+        allow get: if isValidId(uid) && isValidLevelId(levelId) && (isOwner(uid) || isAdmin());
+        allow list: if isValidId(uid) && (isOwner(uid) || isAdmin());
+        allow create: if isValidId(uid) && isValidLevelId(levelId)
+          && isVerifiedOwner(uid)
+          && isValidLevelHistory(incoming(), uid, levelId)
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(uid) && isValidLevelId(levelId)
+          && isVerifiedOwner(uid)
+          && isValidLevelHistory(incoming(), uid, levelId)
+          && incoming().uid == existing().uid
+          && incoming().levelId == existing().levelId
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'bestTimeSeconds', 'stars', 'bestMoves', 'minBumps', 'updatedAt'
+          ]);
+        allow delete: if false;
+      }
+    }
+
+    // Public Global Leaderboard (Zero PII, explicit resource.data.isPublic == true list guard)
+    match /leaderboard/{uid} {
+      allow get: if isValidId(uid) && isSignedIn();
+      allow list: if isSignedIn() && resource.data.isPublic == true;
+      allow create: if isValidId(uid)
+        && isVerifiedOwner(uid)
+        && isValidLeaderboardEntry(incoming(), uid)
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(uid)
+        && isVerifiedOwner(uid)
+        && isValidLeaderboardEntry(incoming(), uid)
+        && incoming().uid == existing().uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName', 'photoUrl', 'completedCount', 'highestUnlockedLevel',
+          'totalStars', 'totalTimeSeconds', 'tierIndex', 'isPublic', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Public Per-Level Fastest Clear-Time Records (Zero PII)
+    match /levels/{levelId}/records/{uid} {
+      allow get: if isValidLevelId(levelId) && isValidId(uid) && isSignedIn();
+      allow list: if isSignedIn() && resource.data.isPublic == true;
+      allow create: if isValidLevelId(levelId) && isValidId(uid)
+        && isVerifiedOwner(uid)
+        && isValidLevelRecord(incoming(), uid, levelId)
+        && incoming().updatedAt == request.time;
+      allow update: if isValidLevelId(levelId) && isValidId(uid)
+        && isVerifiedOwner(uid)
+        && isValidLevelRecord(incoming(), uid, levelId)
+        && incoming().uid == existing().uid
+        && incoming().levelId == existing().levelId
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName', 'photoUrl', 'bestTimeSeconds', 'stars',
+          'bestMoves', 'minBumps', 'isPublic', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+  }
+}
