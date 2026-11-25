@@ -1,25 +1,22 @@
 {
-  "id": "/",
-  "name": "Brain Faster — Habib Gaming",
+  "name": "Brain Faster",
   "short_name": "Brain Faster",
-  "description": "Brain Faster by Habib Gaming is a brain-training puzzle game featuring 500 challenging interlocking arrow puzzles, rapid-fire escapes, shaped art, and animated Boss levels. Sharpen your focus, logic, and problem-solving skills.",
+  "description": "Brain Faster - A fun and challenging brain training game.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f6eedb",
-  "theme_color": "#f6eedb",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     }
   ]
 }
