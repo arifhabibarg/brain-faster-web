@@ -3,10 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "app.netlify.fascinating_sunshine_cf18b9.twa",
+      "package_name": "studio.ai.brain_faster.twa",
       "sha256_cert_fingerprints": [
-        "A1:BE:7F:D6:CF:62:3E:0C:2B:BF:0F:3D:88:EE:BF:B0:37:F9:5C:5C:4B:B9:02:48:77:E9:4B:F6:0D:04:76:82",
-        "F5:50:C1:25:3C:07:43:2D:36:D3:65:E3:D3:D6:80:D8:FD:8F:F6:FC:DE:AD:93:4E:50:14:E6:F2:25:C9:C0:B2"
+        "CC:CE:C1:B4:B3:76:E8:EE:63:AB:E8:75:FA:3C:2F:08:72:8D:60:6D:38:CF:60:EB:04:3E:7A:C3:C7:05:16:75"
       ]
     }
   }
