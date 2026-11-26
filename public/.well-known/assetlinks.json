@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "studio.ai.brain_faster.twa",
+      "package_name": "app.vercel.brain_faster.twa",
       "sha256_cert_fingerprints": [
-        "CC:CE:C1:B4:B3:76:E8:EE:63:AB:E8:75:FA:3C:2F:08:72:8D:60:6D:38:CF:60:EB:04:3E:7A:C3:C7:05:16:75"
+        "05:83:51:11:83:11:39:77:05:2B:10:1D:22:29:F3:09:95:3B:BC:A7:89:22:4D:4F:61:8A:CC:AD:A4:06:B3:82"
       ]
     }
   }
