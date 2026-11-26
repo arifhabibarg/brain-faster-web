@@ -1,6 +1,11 @@
 import { initializeApp } from 'firebase/app';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
   getAuth,
+  initializeAuth,
+  indexedDBLocalPersistence,
+  signInWithCredential,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
@@ -45,10 +50,15 @@ const STORAGE_KEY_LAST_UID = 'amazego_last_uid';
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
-void setPersistence(auth, browserLocalPersistence).catch(() => {
-  // Ignore if browser storage restricts persistence
-});
+export const auth = Capacitor.isNativePlatform()
+  ? initializeAuth(app, { persistence: indexedDBLocalPersistence })
+  : getAuth(app);
+
+if (!Capacitor.isNativePlatform()) {
+  void setPersistence(auth, browserLocalPersistence).catch(() => {
+    // Ignore if browser storage restricts persistence
+  });
+}
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -237,6 +247,17 @@ export async function signInWithGoogleAccount(): Promise<{
   user: User | null;
   method: 'popup' | 'redirect';
 }> {
+  if (Capacitor.isNativePlatform()) {
+    const result = await FirebaseAuthentication.signInWithGoogle();
+    const idToken = result.credential?.idToken;
+    if (!idToken) {
+      throw new Error('Google sign-in did not return an ID token.');
+    }
+    const credential = GoogleAuthProvider.credential(idToken);
+    const userCredential = await signInWithCredential(auth, credential);
+    return { user: userCredential.user, method: 'popup' };
+  }
+
   const isStandalone =
     typeof window !== 'undefined' &&
     (window.matchMedia('(display-mode: standalone)').matches ||
@@ -273,14 +294,12 @@ export async function signInWithGoogleRedirectFallback(): Promise<void> {
 }
 
 export async function signOutPlayer(): Promise<void> {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(STORAGE_KEY_COMPLETED);
-      localStorage.removeItem(STORAGE_KEY_LAST_UID);
-    }
-  } catch {
-    // Ignore storage access errors
+  if (Capacitor.isNativePlatform()) {
+    await FirebaseAuthentication.signOut().catch(() => {
+      // Continue signing out from Firebase JS Auth
+    });
   }
+  // Keep offline progress and the previous UID for account-switch detection.
   await signOut(auth);
 }
 

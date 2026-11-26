@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1005494813244",
+    "project_id": "planar-ripple-gv0ns",
+    "storage_bucket": "planar-ripple-gv0ns.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1005494813244:android:416a55631f5745f5c27939",
+        "android_client_info": {
+          "package_name": "app.vercel.brain_faster.twa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1005494813244-j3gk4m6sso8qpfijn8gppgghjnoklqvs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqblsQ-KJ-mftfIqWjtb5aKqtMk4MLlUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1005494813244-j3gk4m6sso8qpfijn8gppgghjnoklqvs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
