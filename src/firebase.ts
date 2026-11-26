@@ -3,8 +3,6 @@ import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
   getAuth,
-  initializeAuth,
-  indexedDBLocalPersistence,
   signInWithCredential,
   GoogleAuthProvider,
   signInWithPopup,
@@ -50,9 +48,7 @@ const STORAGE_KEY_LAST_UID = 'amazego_last_uid';
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = Capacitor.isNativePlatform()
-  ? initializeAuth(app, { persistence: indexedDBLocalPersistence })
-  : getAuth(app);
+export const auth = getAuth(app);
 
 if (!Capacitor.isNativePlatform()) {
   void setPersistence(auth, browserLocalPersistence).catch(() => {
