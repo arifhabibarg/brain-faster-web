@@ -184,8 +184,8 @@ export const AmazeGoTitleScreen: React.FC<AmazeGoTitleScreenProps> = ({
 
       {/* Center Hero: Interlocking Arrows Icon + Brain Faster */}
       <div className="flex flex-col items-center text-center my-auto z-10">
-        <div className="mb-4 p-3.5 bg-[#e1f5e8] rounded-[34px] shadow-lg border border-[#cbead6] hover:scale-105 transition-transform duration-300">
-          <div className="p-2.5 bg-white rounded-[26px]">
+        <div className="mb-4 hover:scale-105 transition-transform duration-300">
+          <div>
             <svg width="96" height="96" viewBox="0 0 120 120" aria-label="Brain Faster Logo">
               <path
                 d="M 20 41 L 20 20 L 56 20 L 56 54"

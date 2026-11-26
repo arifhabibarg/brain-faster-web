@@ -237,6 +237,16 @@ export async function signInWithGoogleAccount(): Promise<{
   user: User | null;
   method: 'popup' | 'redirect';
 }> {
+  const isStandalone =
+    typeof window !== 'undefined' &&
+    (window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true);
+
+  if (isStandalone) {
+    await signInWithRedirect(auth, googleProvider);
+    return { user: null, method: 'redirect' };
+  }
+
   try {
     const cred = await signInWithPopup(auth, googleProvider);
     return { user: cred.user, method: 'popup' };
